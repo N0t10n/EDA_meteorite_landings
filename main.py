@@ -1,28 +1,12 @@
-from functions import st_functions as stf
-import pandas as pd
+from functions import st_functions
 import streamlit as st
-import numpy as np
+import pandas as pd
 
 # Importing data
 df = pd.read_csv('data/Meteorite_Landings.csv')
 
-## CREATING & CLEANING
-# Column to count how many types of class there is
-df['count'] = pd.Series(np.ones(df.shape[0])).astype(int)
-# Turning floats into integers
-df['year'] = df['year'].fillna(0).apply(lambda x: int(x)).replace(0, np.nan)
-# Dropping GeoLocation
-df.drop(columns='GeoLocation', inplace=True)
-# Turning mass into kg
-df['mass (g)'] = df['mass (g)'].apply(lambda x: round(x/1000, 3))
-# Rename columns
-df.rename(
-    columns={'mass (g)': 'mass (kg)'},
-    inplace=True
-)
-
-# Calling class object
-ml = stf(df)
+ml = st_functions(df) # Calling class object
+ml.clean_data() # Cleaning it's data
 
 # Browser tab configuration
 st.set_page_config(page_title='EDA Meteorite Landings', layout='wide', page_icon='🌍')
@@ -37,7 +21,7 @@ index = st.sidebar.selectbox(
 if index == 'A brief introduction':
     ml.intro()
 elif index == 'Exploring data':
-    # ml.data()
+    ml.data()
     pass
 else:
     # ml.conclude()
