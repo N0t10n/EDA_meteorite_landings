@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 class st_functions:
 
@@ -62,33 +61,39 @@ class st_functions:
         st.write('For further information about classification, visit [The Catalogue of Meteorites](https://www.nhm.ac.uk/our-science/data/metcat/search/bgmettypes.dsml) of Nature History Museum.')
 
     def data(self):
-        # Map
+        # MAPPLOT
         # st.map(self.df[['lon', 'lat']].dropna())
 
-        # Boxplot
-        fig = px.box(self.df, y='year', height=1000, color='fall')
+        # BOXPLOT
+        st.subheader('Understanding data collection')
+        st.write('''
+        A few entries in the original databse contain date information that was incorrectly parsed into the NASA database.
+        As a spot check: any date that is before 860 CE or after 2016 are incorrect; these should actually be BCE years.
+
+        So in order to focus in relevant information I have proceeded to remove them for this plot.
+        ''')
+        df_1 = self.df[(self.df['year']!=0) & (self.df['year']<2100)]
+        fig = px.box(df_1, y='year', height=1000, color='fall')
         fig.update_layout(title='Meteorites fall by year')
         st.plotly_chart(fig, use_container_width=True)
 
-        # Bar plot
+        # BARPLOT
+        st.subheader('Classifying meteorites by it\'s mass')
         switch = st.radio(
-            "Choose and option to display as y axis:",
+            "Choose and option to display in y axis:",
             ('Mean', 'Standard deviation', 'Max'),
             )
-        sort = st.radio(
-            "Sort by:",
-            ('Count', 'Mean', 'Standard deviation', 'Max'),
-            )
-
-        # y axes
         if switch == 'Mean':
             c = 'mean'
         elif switch == 'Standard deviation':
             c = 'std'
         else:
             c = 'max'
-        
-        # sort values
+
+        sort = st.radio(
+            "Sort by:",
+            ('Count', 'Mean', 'Standard deviation', 'Max'),
+            )
         if sort == 'Count':
             s = 'count'
         elif sort == 'Mean':
@@ -98,23 +103,26 @@ class st_functions:
         else:
             s = 'max'
         
+        # recclass slider
         start, end = st.select_slider(
         'Select a range of recclass length:',
-        options=list(np.arange(0, 110, 10)),
+        options=list(np.arange(0, 388, 10)),
         value=(0, 100))
 
-        df_1 = self.df.dropna().groupby('recclass')[['mass (kg)']].describe()
-        df_1 = df_1['mass (kg)'].sort_values(by=s, ascending=False)
-        df_1 = df_1[start:end]
+        df_2 = self.df.dropna().groupby('recclass')[['mass (kg)']].describe()
+        df_2 = df_2['mass (kg)'].sort_values(by=s, ascending=False)
+        df_2 = df_2[start:end]
         
         fig = px.bar(
-            df_1,
-            x=df_1.index,
+            df_2,
+            x=df_2.index,
             y=c,
+            hover_data=['mean', 'std'],
             color='count',
             color_continuous_scale='Blugrn',
-            title='Amount rank of each meteorite property classified by mass',
-            height=600
+            title='Amount rank of each meteorite property classified by a given input',
+            height=600,
+            text='count'
         )
+        fig.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
         st.plotly_chart(fig, use_container_width=True)
-        
