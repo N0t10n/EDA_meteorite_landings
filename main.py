@@ -14,15 +14,11 @@ st.set_page_config(page_title='EDA Meteorite Landings', layout='wide', page_icon
 # Adding a side bar
 index = st.sidebar.selectbox(
     'INDEX',
-    ('A brief introduction', 'Exploring data', 'Conclusions')
+    ('A brief introduction', 'Exploring data')
 )
 
 # Running functions
 if index == 'A brief introduction':
     ml.intro()
-elif index == 'Exploring data':
+else: # index == 'Exploring data'
     ml.data()
-    pass
-else:
-    # ml.conclude()
-    pass
